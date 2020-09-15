@@ -6,6 +6,8 @@
     <home-swiper :banners="banners"></home-swiper>
     <recommend-view :recommends="recommends"></recommend-view>
     <feature-view></feature-view>
+    <tab-control class="tab-control" :titles="['流行','新款','精选']"></tab-control>
+    <div v-for="item in 111">111</div>
   </div>
 </template>
 
@@ -15,6 +17,8 @@ import HomeSwiper from "@/views/home/childComps/HomeSwiper";
 import RecommendView from "@/views/home/childComps/RecommendView";
 import FeatureView from "@/views/home/childComps/FeatureView";
 
+import TabControl from "@/components/content/tabControl/TabControl";
+
 import {getHomeMultiData} from "@/network/home";
 
 export default {
@@ -23,7 +27,8 @@ export default {
     NavBar,
     HomeSwiper,
     RecommendView,
-    FeatureView
+    FeatureView,
+    TabControl
   },
   data() {
     return {
@@ -56,5 +61,10 @@ export default {
   left: 0;
   right: 0;
   z-index: 9;
+}
+
+.tab-control {
+  position: sticky;
+  top: 44px;
 }
 </style>
