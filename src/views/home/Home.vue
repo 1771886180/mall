@@ -19,7 +19,7 @@ import FeatureView from "@/views/home/childComps/FeatureView";
 
 import TabControl from "@/components/content/tabControl/TabControl";
 
-import {getHomeMultiData} from "@/network/home";
+import {getHomeMultiData, getHomeGoods} from "@/network/home";
 
 export default {
   name: "Home",
@@ -33,16 +33,39 @@ export default {
   data() {
     return {
       banners: [],
-      recommends: []
+      recommends: [],
+      goods: {
+        'pop': {page: 0, list: []},
+        'news': {page: 0, list: []},
+        'sell': {page: 0, list: []}
+      }
     }
   },
   created() {
     // 1.请求多个数据
-    getHomeMultiData().then(res => {
-      // this.result = res;
-      this.banners = res.data.banner.list;
-      this.recommends = res.data.recommend.list;
-    });
+    this.getHomeMultiData();
+
+    // 2.请求商品数据
+    this.getHomeGoods('pop');
+    this.getHomeGoods('news');
+    this.getHomeGoods('sell');
+  },
+  methods: {
+    getHomeMultiData() {
+      getHomeMultiData().then(res => {
+        // this.result = res;
+        this.banners = res.data.banner.list;
+        this.recommends = res.data.recommend.list;
+      });
+    },
+    getHomeGoods(type) {
+      console.log(this.goods[type])
+      const page = this.goods[type].page + 1;
+      getHomeGoods('pop', page).then(res => {
+        this.goods[type].list.push(...res.data.list);
+        this.goods[type].page += 1;
+      });
+    }
   }
 }
 </script>
