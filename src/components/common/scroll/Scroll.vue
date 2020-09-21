@@ -1,5 +1,5 @@
 <template>
-<!--  ref/children-->
+  <!--  ref/children-->
   <div class="wrapper" ref="wrapper">
     <div class="content">
       <slot></slot>
@@ -21,6 +21,12 @@ export default {
     this.scroll = new BScroll(this.$refs.wrapper, {
       click: true
     });
+    this.scroll.scrollTo(0, 0);
+  },
+  methods: {
+    scrollTo(x, y, time = 1000) {
+      this.scroll.scrollTo(x, y, time);
+    }
   }
 }
 </script>
