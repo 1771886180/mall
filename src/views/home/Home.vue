@@ -4,7 +4,7 @@
       <div slot="center">购物街</div>
     </nav-bar>
 
-    <scroll ref="scroll" class="content">
+    <scroll ref="scroll" :probe-type="3" @scroll="contentScroll" class="content">
       <home-swiper :banners="banners"></home-swiper>
       <recommend-view :recommends="recommends"></recommend-view>
       <feature-view></feature-view>
@@ -15,7 +15,7 @@
       ></tab-control>
       <goods-list :goods="showGoods"></goods-list>
     </scroll>
-    <back-top @click.native="backClick"></back-top>
+    <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
   </div>
 </template>
 
@@ -53,7 +53,8 @@ export default {
         'new': {page: 1, list: []},
         'sell': {page: 2, list: []}
       },
-      currentType: 'pop'
+      currentType: 'pop',
+      isShowBackTop: false
     }
   },
   computed: {
@@ -90,6 +91,9 @@ export default {
     backClick() {
       // this.$refs.scroll.scroll.scrollTo(0, 0, 1000);
       this.$refs.scroll.scrollTo(0, 0);
+    },
+    contentScroll(position) {
+      this.isShowBackTop = (-position.y) > 1000;
     },
     // 网络请求相关方
     getHomeMultiData() {
