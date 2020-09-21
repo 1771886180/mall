@@ -4,7 +4,13 @@
       <div slot="center">购物街</div>
     </nav-bar>
 
-    <scroll ref="scroll" :probe-type="3" @scroll="contentScroll" class="content">
+    <scroll ref="scroll"
+            :probe-type="3"
+            @scroll="contentScroll"
+            @pullingUp="loadMore"
+            class="content"
+            :pull-up-load="true"
+    >
       <home-swiper :banners="banners"></home-swiper>
       <recommend-view :recommends="recommends"></recommend-view>
       <feature-view></feature-view>
@@ -87,13 +93,15 @@ export default {
           break;
       }
     },
-
     backClick() {
       // this.$refs.scroll.scroll.scrollTo(0, 0, 1000);
       this.$refs.scroll.scrollTo(0, 0);
     },
     contentScroll(position) {
       this.isShowBackTop = (-position.y) > 1000;
+    },
+    loadMore() {
+      this.getHomeGoods(this.currentType);
     },
     // 网络请求相关方
     getHomeMultiData() {
@@ -104,12 +112,12 @@ export default {
       });
     },
     getHomeGoods(type) {
-      console.log(this.goods[type])
       const page = this.goods[type].page + 1;
       getHomeGoods('pop', page).then(res => {
         this.goods[type].list.push(...res.data.list);
         this.goods[type].page += 1;
       });
+      this.$refs.scroll.finishPullUp();
     }
   }
 }
