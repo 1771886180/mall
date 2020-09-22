@@ -25,141 +25,151 @@
 </template>
 
 <script>
-  import HomeSwiper from "@/views/home/childComps/HomeSwiper";
-  import RecommendView from "@/views/home/childComps/RecommendView";
-  import FeatureView from "@/views/home/childComps/FeatureView";
+import HomeSwiper from "@/views/home/childComps/HomeSwiper";
+import RecommendView from "@/views/home/childComps/RecommendView";
+import FeatureView from "@/views/home/childComps/FeatureView";
 
-  import NavBar from "@/components/common/navbar/NavBar";
-  import TabControl from "@/components/content/tabControl/TabControl";
-  import GoodsList from "@/components/content/goods/GoodsList";
-  import Scroll from "@/components/common/scroll/Scroll";
-  import BackTop from "@/components/content/backTop/BackTop";
+import NavBar from "@/components/common/navbar/NavBar";
+import TabControl from "@/components/content/tabControl/TabControl";
+import GoodsList from "@/components/content/goods/GoodsList";
+import Scroll from "@/components/common/scroll/Scroll";
+import BackTop from "@/components/content/backTop/BackTop";
 
-  import {getHomeMultiData, getHomeGoods} from "@/network/home";
+import {getHomeMultiData, getHomeGoods} from "@/network/home";
 
-  export default {
-    name: "Home",
-    components: {
-      NavBar,
-      HomeSwiper,
-      RecommendView,
-      FeatureView,
-      TabControl,
-      GoodsList,
-      Scroll,
-      BackTop
+export default {
+  name: "Home",
+  components: {
+    NavBar,
+    HomeSwiper,
+    RecommendView,
+    FeatureView,
+    TabControl,
+    GoodsList,
+    Scroll,
+    BackTop
+  },
+  data() {
+    return {
+      banners: [],
+      recommends: [],
+      goods: {
+        'pop': {page: 0, list: []},
+        'new': {page: 1, list: []},
+        'sell': {page: 2, list: []}
+      },
+      currentType: 'pop',
+      isShowBackTop: false
+    }
+  },
+  computed: {
+    showGoods() {
+      console.log(this.goods);
+      return this.goods[this.currentType].list
+    }
+  },
+  created() {
+    // 1.请求多个数据
+    this.getHomeMultiData();
+
+    // 2.请求商品数据
+    this.getHomeGoods('pop');
+    this.getHomeGoods('new');
+    this.getHomeGoods('sell');
+  },
+  mounted() {
+
+    const refresh = this.debounce(this.$refs.scroll.refresh, 500);
+
+    this.$bus.$on('itemImageLoad', () => {
+      refresh();
+    });
+  },
+  methods: {
+    // 事件监听相关的方法
+    debounce(func, delay) {
+      let timer = null;
+      return function () {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout((...args) => {
+          func.apply(this, args)
+        }, delay);
+      };
     },
-    data() {
-      return {
-        banners: [],
-        recommends: [],
-        goods: {
-          'pop': {page: 0, list: []},
-          'new': {page: 1, list: []},
-          'sell': {page: 2, list: []}
-        },
-        currentType: 'pop',
-        isShowBackTop: false
+    tabClick(index) {
+      switch (index) {
+        case 0:
+          this.currentType = 'pop';
+          break;
+        case 1:
+          this.currentType = 'new';
+          break;
+        case 2:
+          this.currentType = 'sell';
+          break;
       }
     },
-    computed: {
-      showGoods() {
-        console.log(this.goods);
-        return this.goods[this.currentType].list
-      }
+    backClick() {
+      this.$refs.scroll.scrollTo(0, 0);
     },
-    created() {
-      // 1.请求多个数据
-      this.getHomeMultiData();
-
-      // 2.请求商品数据
-      this.getHomeGoods('pop');
-      this.getHomeGoods('new');
-      this.getHomeGoods('sell');
+    contentScroll(position) {
+      this.isShowBackTop = (-position.y) > 1000;
     },
-    mounted() {
-      // 3.监听item中图片加载完成
-      this.$bus.$on('itemImageLoad', () => {
-        console.log('----------------------');
-        this.$refs.scroll.refresh();
+    // 网络请求相关方
+    getHomeMultiData() {
+      getHomeMultiData().then(res => {
+        this.banners = res.data.banner.list;
+        this.recommends = res.data.recommend.list;
       });
     },
-    methods: {
-      // 事件监听相关的方法
-      tabClick(index) {
-        switch (index) {
-          case 0:
-            this.currentType = 'pop';
-            break;
-          case 1:
-            this.currentType = 'new';
-            break;
-          case 2:
-            this.currentType = 'sell';
-            break;
-        }
-      },
-      backClick() {
-        this.$refs.scroll.scrollTo(0, 0);
-      },
-      contentScroll(position) {
-        this.isShowBackTop = (-position.y) > 1000;
-      },
-      // 网络请求相关方
-      getHomeMultiData() {
-        getHomeMultiData().then(res => {
-          this.banners = res.data.banner.list;
-          this.recommends = res.data.recommend.list;
-        });
-      },
-      getHomeGoods(type) {
-        const page = this.goods[type].page + 1;
-        getHomeGoods('pop', page).then(res => {
-          this.goods[type].list.push(...res.data.list);
-          this.goods[type].page += 1;
-        });
-      }
+    getHomeGoods(type) {
+      const page = this.goods[type].page + 1;
+      getHomeGoods('pop', page).then(res => {
+        this.goods[type].list.push(...res.data.list);
+        this.goods[type].page += 1;
+      });
     }
   }
+}
 </script>
 
 <style scoped>
-  #home {
-    padding-top: 44px;
-    height: 100vh;
-    position: relative;
-  }
+#home {
+  padding-top: 44px;
+  height: 100vh;
+  position: relative;
+}
 
-  .home-nav {
-    background-color: var(--color-tint);
-    color: #fff;
+.home-nav {
+  background-color: var(--color-tint);
+  color: #fff;
 
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 9;
-  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9;
+}
 
-  .tab-control {
-    position: sticky;
-    top: 44px;
-    z-index: 9;
-  }
+.tab-control {
+  position: sticky;
+  top: 44px;
+  z-index: 9;
+}
 
-  .content {
-    overflow: hidden;
+.content {
+  overflow: hidden;
 
-    position: absolute;
-    top: 44px;
-    bottom: 49px;
-    left: 0;
-    right: 0;
-  }
+  position: absolute;
+  top: 44px;
+  bottom: 49px;
+  left: 0;
+  right: 0;
+}
 
-  /*.content {*/
-  /*  height: calc(100% - 93px);*/
-  /*  overflow: hidden;*/
-  /*  margin-top: 44px;*/
-  /*}*/
+/*.content {*/
+/*  height: calc(100% - 93px);*/
+/*  overflow: hidden;*/
+/*  margin-top: 44px;*/
+/*}*/
 </style>
