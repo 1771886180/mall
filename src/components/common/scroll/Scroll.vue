@@ -16,10 +16,6 @@ export default {
     probeType: {
       type: Number,
       default: 0
-    },
-    pullUpLoad: {
-      type: Boolean,
-      default: false
     }
   },
   data() {
@@ -42,10 +38,8 @@ export default {
       this.$emit('scroll', position);
     });
 
-    // 3.监听上拉事件
-    this.scroll.on('pullingUp', () => {
-      this.$emit('pullingUp');
-    });
+    console.log(this.scroll);
+    this.scroll.refresh();
   },
   methods: {
     scrollTo(x, y, time = 1000) {
@@ -53,6 +47,9 @@ export default {
     },
     finishPullUp() {
       this.scroll.finishPullUp();
+    },
+    refresh() {
+
     }
   }
 }
