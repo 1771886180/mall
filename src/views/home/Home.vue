@@ -70,7 +70,8 @@ export default {
       currentType: 'pop',
       isShowBackTop: false,
       tabOffsetTop: 545,
-      isTabFixed: false
+      isTabFixed: false,
+      saveY: 0
     };
   },
   computed: {
@@ -78,6 +79,17 @@ export default {
       console.log(this.goods);
       return this.goods[this.currentType].list
     }
+  },
+  destroyed() {
+    console.log('home destroyed');
+  },
+  activated() {
+    this.$refs.scroll.scrollTo(0, this.saveY, 0);
+    this.$refs.scroll.refresh();
+  },
+  deactivated() {
+    this.saveY = this.$refs.scroll.getScrollY();
+    console.log(this.saveY);
   },
   created() {
     // 1.请求多个数据
@@ -95,6 +107,7 @@ export default {
       refresh();
     });
   },
+
   methods: {
     // 事件监听相关的方法
     tabClick(index) {
